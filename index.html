@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>MTS Mobile Content Engine</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <p class="eyebrow">MTS Żory</p>
+      <h1>Brief mobilny</h1>
+      <p class="lead">Szybki formularz do tworzenia JSON dla Make i Custom GPT.</p>
+    </section>
+
+    <section class="card">
+      <label>Typ workflow
+        <select id="workflow_type">
+          <option>article_to_social</option>
+          <option>event_brief</option>
+          <option>fast_post</option>
+          <option>player_profile</option>
+          <option>campaign_brief</option>
+          <option>sponsor_report</option>
+          <option>newsletter</option>
+          <option>graphic_brief</option>
+          <option>troubleshooting</option>
+          <option>content_calendar</option>
+          <option>pt_br_adaptation</option>
+        </select>
+      </label>
+      <label>Tytuł <input id="title" type="text"></label>
+      <label>URL źródła <input id="source_url" type="url"></label>
+      <label>Fakty <textarea id="facts" rows="5"></textarea></label>
+      <label>Osoby <input id="people" type="text" placeholder="Oddziel przecinkami"></label>
+      <label>Data <input id="date" type="date"></label>
+      <label>Uwagi kanałowe <textarea id="notes" rows="4"></textarea></label>
+      <label>Tone
+        <select id="tone">
+          <option>neutralny</option>
+          <option>sportowy</option>
+          <option>emocjonalny, ale rzeczowy</option>
+        </select>
+      </label>
+      <label class="check"><input id="ptbr" type="checkbox"> Potrzebne pt_BR</label>
+      <label>Webhook URL placeholder (opcjonalny) <input id="webhook_url" type="url" placeholder="https://HOOK_URL_Z_MAKE"></label>
+      <div class="buttons">
+        <button id="generate">Generate JSON</button>
+        <button id="copy">Copy JSON</button>
+        <button id="send">Wyślij po potwierdzeniu</button>
+        <button id="clear" class="secondary">Clear form</button>
+      </div>
+      <p id="status" class="status"></p>
+      <textarea id="output" rows="16" readonly></textarea>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
