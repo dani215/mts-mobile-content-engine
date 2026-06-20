@@ -1,4 +1,5 @@
 const $ = (id) => document.getElementById(id);
+const WORKER_PROXY_URL = "https://mts-make-proxy.dasztemborski.workers.dev/";
 
 function buildPayload() {
   const people = $("people").value.split(",").map((s) => s.trim()).filter(Boolean);
@@ -73,20 +74,35 @@ $("clear").onclick = () => {
 
 $("send").onclick = async () => {
   render();
-  const url = $("webhook_url").value;
-  if (!url) {
+  const makeWebhookUrl = $("webhook_url").value.trim();
+  if (!makeWebhookUrl) {
     $("status").textContent = "Dodaj webhook URL.";
     return;
   }
   if (!confirm("Wysłać brief do Make?")) return;
   try {
-    const res = await fetch(url, {
+    const res = await fetch(WORKER_PROXY_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: $("output").value
+      body: JSON.stringify({
+        make_webhook_url: makeWebhookUrl,
+        payload: buildPayload()
+      })
     });
-    $("status").textContent = `Wysłano. Status: ${res.status}`;
+    const text = await res.text();
+    let message = text;
+    try {
+      const data = JSON.parse(text);
+      message = data.message || data.error || text;
+    } catch (e) {
+      message = text || `Status: ${res.status}`;
+    }
+    if (res.ok) {
+      $("status").textContent = message || "Wysłano poprawnie.";
+    } else {
+      $("status").textContent = message || "Wysyłka nie powiodła się.";
+    }
   } catch (e) {
-    $("status").textContent = "Błąd wysyłki.";
+    $("status").textContent = "Błąd wysyłki przez Worker.";
   }
 };
