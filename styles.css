@@ -17,6 +17,8 @@ h1{margin:.2rem 0 0;font-size:clamp(2rem,7vw,3.5rem)}
 .hint{margin:-4px 0 10px;color:var(--muted);font-size:.92rem;line-height:1.4}
 .card{background:rgba(14,26,46,.92);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:0 24px 60px rgba(0,0,0,.28)}
 label{display:block;margin:12px 0;font-weight:600}
+fieldset{border:1px solid var(--line);border-radius:16px;padding:12px 12px 4px;margin:14px 0;background:#091225}
+legend{padding:0 8px;color:var(--yellow);font-weight:800}
 input,select,textarea,button{width:100%;margin-top:8px;border-radius:14px;border:1px solid var(--line);background:#081224;color:var(--text);font:inherit;padding:14px}
 textarea{resize:vertical;min-height:110px}
 .check{display:flex;gap:10px;align-items:center}
