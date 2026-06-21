@@ -19,6 +19,7 @@ h1{margin:.2rem 0 0;font-size:clamp(2rem,7vw,3.5rem)}
 label{display:block;margin:12px 0;font-weight:600}
 fieldset{border:1px solid var(--line);border-radius:16px;padding:12px 12px 4px;margin:14px 0;background:#091225}
 legend{padding:0 8px;color:var(--yellow);font-weight:800}
+.group{scroll-margin-top:20px}
 input,select,textarea,button{width:100%;margin-top:8px;border-radius:14px;border:1px solid var(--line);background:#081224;color:var(--text);font:inherit;padding:14px}
 textarea{resize:vertical;min-height:110px}
 .check{display:flex;gap:10px;align-items:center}

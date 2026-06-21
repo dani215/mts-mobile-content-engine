@@ -28,6 +28,7 @@
           <option value="pt_br_adaptation">Wersja PT-BR</option>
         </select>
       </label>
+
       <fieldset class="group">
         <legend>Kanały publikacji</legend>
         <label class="check"><input type="checkbox" id="channel_www"> Strona www</label>
@@ -38,36 +39,77 @@
         <label class="check"><input type="checkbox" id="channel_canva"> Canva / grafika</label>
         <label class="check"><input type="checkbox" id="channel_inne"> Inne</label>
       </fieldset>
+
       <label>Cel materiału <textarea id="title" rows="3" placeholder="Po co ma powstać materiał? Jaki efekt chcemy osiągnąć?"></textarea></label>
-      <label>Link źródłowy <input id="source_url" type="url" placeholder="Adres materiału źródłowego lub pusty"></label>
+
+      <fieldset class="group">
+        <legend>Linki źródłowe</legend>
+        <label>Link źródłowy 1 <input id="source_url_1" type="url" placeholder="Pierwszy link"></label>
+        <label>Link źródłowy 2 <input id="source_url_2" type="url" placeholder="Drugi link"></label>
+        <label>Link źródłowy 3 <input id="source_url_3" type="url" placeholder="Trzeci link"></label>
+        <label>Dodatkowe źródła / notatki do źródeł <textarea id="source_notes" rows="3" placeholder="Np. co jest ważne w źródłach, co pominąć, czego nie cytować"></textarea></label>
+      </fieldset>
+
       <label>Najważniejsze fakty <textarea id="facts" rows="5" placeholder="Podaj konkretne fakty, liczby, daty, cytaty lub braki"></textarea></label>
       <label>Osoby / zawodniczki / drużyny <input id="people" type="text" placeholder="Oddziel przecinkami"></label>
-      <label>Ton komunikacji
-        <select id="tone">
-          <option>newsowy</option>
-          <option>emocjonalny</option>
-          <option>spokojny</option>
-          <option>premium</option>
-          <option>szybki komunikat</option>
-          <option>mocna humanizacja</option>
-        </select>
-      </label>
+
+      <fieldset class="group">
+        <legend>Ton komunikacji</legend>
+        <label class="check"><input type="checkbox" id="tone_newsowy"> newsowy</label>
+        <label class="check"><input type="checkbox" id="tone_humanizacja"> humanizacja</label>
+        <label class="check"><input type="checkbox" id="tone_spokojnie_emocjonalny"> spokojnie emocjonalny</label>
+        <label class="check"><input type="checkbox" id="tone_premium"> premium</label>
+        <label class="check"><input type="checkbox" id="tone_szybki_komunikat"> szybki komunikat</label>
+        <label class="check"><input type="checkbox" id="tone_reporterski"> reporterski</label>
+        <label class="check"><input type="checkbox" id="tone_marketingowy"> mocny marketingowo</label>
+        <label class="check"><input type="checkbox" id="tone_socialowy"> lekki socialowy</label>
+        <label class="check"><input type="checkbox" id="tone_bez_patetyzmu"> bez przesadnego patosu</label>
+        <label class="check"><input type="checkbox" id="tone_klubowy"> język klubowy MTS Żory</label>
+      </fieldset>
+
       <label>Deadline / kiedy materiał ma być potrzebny <input id="date" type="date"></label>
       <label>Dodatkowe wymagania <textarea id="notes" rows="4" placeholder="Np. długość, CTA, zakazy, styl, format, uwagi do grafiki"></textarea></label>
+
       <fieldset class="group">
         <legend>Język materiału</legend>
         <label class="check"><input type="checkbox" id="lang_pl" checked> Polski</label>
         <label class="check"><input type="checkbox" id="lang_ptbr"> PT-BR</label>
         <label class="check"><input type="checkbox" id="need_json"> Potrzebny JSON do Make</label>
       </fieldset>
+
+      <fieldset class="group">
+        <legend>Grafika</legend>
+        <label class="check"><input type="checkbox" id="graphic_prompt"> Potrzebuję promptu do grafiki</label>
+        <label class="check"><input type="checkbox" id="graphic_json"> Potrzebuję JSON/specyfikacji grafiki</label>
+        <label class="check"><input type="checkbox" id="graphic_www"> Grafika na stronę klubową / hero article — 1280 × 720 px</label>
+        <label class="check"><input type="checkbox" id="graphic_social"> Post Facebook / Instagram — 1080 × 1350 px</label>
+        <label class="check"><input type="checkbox" id="graphic_square"> Kwadrat social media — 1080 × 1080 px</label>
+        <label class="check"><input type="checkbox" id="graphic_story"> Relacja Instagram/Facebook — 1080 × 1920 px</label>
+        <label>Tekst na grafice <textarea id="graphic_text" rows="3" placeholder="Tekst główny widoczny na grafice"></textarea></label>
+        <label>Styl grafiki
+          <select id="graphic_style">
+            <option>MTS Żory premium sport</option>
+            <option>news klubowy</option>
+            <option>dynamiczny meczowy</option>
+            <option>elegancki czarno-złoty</option>
+            <option>reprezentacyjny / kadrowy</option>
+            <option>akademia / młodzież</option>
+            <option>sponsor / biznes</option>
+          </select>
+        </label>
+        <label>Zdjęcia / materiały referencyjne <textarea id="graphic_refs" rows="3" placeholder="Opisz zdjęcia, załączniki, twarze, stroje, logotypy i detale do zachowania"></textarea></label>
+      </fieldset>
+
       <label>Webhook Make (opcjonalnie) <input id="webhook_url" type="url" placeholder="https://HOOK_URL_Z_MAKE"></label>
       <p class="hint">Webhook Make jest używany tylko do tej wysyłki i nie jest zapisywany.</p>
+
       <div class="buttons">
         <button id="generate">Wygeneruj prompt do Custom GPT</button>
         <button id="copy">Kopiuj prompt</button>
         <button id="send">Wyślij brief do Make</button>
         <button id="clear" class="secondary">Wyczyść formularz</button>
       </div>
+
       <p id="status" class="status"></p>
       <label>Gotowy prompt
         <textarea id="output" rows="16" readonly placeholder="Tutaj pojawi się gotowy prompt do wklejenia do Custom GPT."></textarea>

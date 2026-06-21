@@ -1,16 +1,52 @@
 const $ = (id) => document.getElementById(id);
 const WORKER_PROXY_URL = "https://mts-make-proxy.dasztemborski.workers.dev/";
 
+function checkedLabels(ids, labels) {
+  return ids.filter((id) => $(id).checked).map((id) => labels[id]);
+}
+
 function getChannels() {
-  const channels = [];
-  if ($("channel_www").checked) channels.push("strona www");
-  if ($("channel_facebook").checked) channels.push("Facebook");
-  if ($("channel_instagram").checked) channels.push("Instagram");
-  if ($("channel_stories").checked) channels.push("Stories");
-  if ($("channel_newsletter").checked) channels.push("newsletter");
-  if ($("channel_canva").checked) channels.push("Canva / grafika");
-  if ($("channel_inne").checked) channels.push("inne");
-  return channels;
+  return checkedLabels(
+    ["channel_www", "channel_facebook", "channel_instagram", "channel_stories", "channel_newsletter", "channel_canva", "channel_inne"],
+    {
+      channel_www: "strona www",
+      channel_facebook: "Facebook",
+      channel_instagram: "Instagram",
+      channel_stories: "Stories",
+      channel_newsletter: "newsletter",
+      channel_canva: "Canva / grafika",
+      channel_inne: "inne"
+    }
+  );
+}
+
+function getTones() {
+  return checkedLabels(
+    [
+      "tone_newsowy",
+      "tone_humanizacja",
+      "tone_spokojnie_emocjonalny",
+      "tone_premium",
+      "tone_szybki_komunikat",
+      "tone_reporterski",
+      "tone_marketingowy",
+      "tone_socialowy",
+      "tone_bez_patetyzmu",
+      "tone_klubowy"
+    ],
+    {
+      tone_newsowy: "newsowy",
+      tone_humanizacja: "humanizacja",
+      tone_spokojnie_emocjonalny: "spokojnie emocjonalny",
+      tone_premium: "premium",
+      tone_szybki_komunikat: "szybki komunikat",
+      tone_reporterski: "reporterski",
+      tone_marketingowy: "mocny marketingowo",
+      tone_socialowy: "lekki socialowy",
+      tone_bez_patetyzmu: "bez przesadnego patosu",
+      tone_klubowy: "język klubowy MTS Żory"
+    }
+  );
 }
 
 function getLanguagesLabel() {
@@ -35,30 +71,54 @@ function getMaterialTypeLabel() {
   return map[$("workflow_type").value] || "materiał";
 }
 
+function getSourceLinks() {
+  return ["source_url_1", "source_url_2", "source_url_3"]
+    .map((id) => $(id).value.trim())
+    .filter(Boolean);
+}
+
+function getGraphicFormats() {
+  return checkedLabels(
+    ["graphic_www", "graphic_social", "graphic_square", "graphic_story"],
+    {
+      graphic_www: "grafika na stronę klubową / hero article — 1280 × 720 px",
+      graphic_social: "post Facebook / Instagram — 1080 × 1350 px",
+      graphic_square: "kwadrat social media — 1080 × 1080 px",
+      graphic_story: "relacja Instagram/Facebook — 1080 × 1920 px"
+    }
+  );
+}
+
 function buildPrompt() {
   const title = $("title").value.trim() || "[DO UZUPEŁNIENIA]";
-  const source = $("source_url").value.trim() || "[DO UZUPEŁNIENIA]";
   const facts = $("facts").value.trim() || "[DO UZUPEŁNIENIA]";
   const people = $("people").value.trim() || "[DO UZUPEŁNIENIA]";
   const notes = $("notes").value.trim() || "[DO UZUPEŁNIENIA]";
+  const sourceNotes = $("source_notes").value.trim() || "[DO UZUPEŁNIENIA]";
   const deadline = $("date").value || "[DO UZUPEŁNIENIA]";
   const channels = getChannels().join(", ") || "[DO UZUPEŁNIENIA]";
   const languages = getLanguagesLabel();
+  const tones = getTones();
+  const sourceLinks = getSourceLinks();
   const needJson = $("need_json").checked ? "tak" : "nie";
-  const materialType = getMaterialTypeLabel();
-  const tone = $("tone").value;
+  const graphicPrompt = $("graphic_prompt").checked ? "tak" : "nie";
+  const graphicJson = $("graphic_json").checked ? "tak" : "nie";
+  const graphicFormats = getGraphicFormats();
+  const graphicText = $("graphic_text").value.trim() || "[DO UZUPEŁNIENIA]";
+  const graphicStyle = $("graphic_style").value;
+  const graphicRefs = $("graphic_refs").value.trim() || "[DO UZUPEŁNIENIA]";
   const prompt = [
     "Jesteś asystentem treści dla MTS Żory.",
-    "Przygotuj uporządkowany materiał na podstawie briefu poniżej.",
-    "Zachowaj naturalny, polski, sportowy styl bez sztucznego tonu AI.",
+    "Przygotuj uporządkowany brief i finalny prompt do Custom GPT.",
+    "Zachowaj naturalny, polski styl bez sztucznego tonu AI.",
     "Jeśli brakuje danych, oznacz je jako [DO UZUPEŁNIENIA] i nie zgaduj faktów.",
     "Zwróć wynik jako draft wymagający akceptacji.",
     "Status: draft.",
     "requires_approval: true.",
-    `Typ materiału: ${materialType}.`,
+    `Typ materiału: ${getMaterialTypeLabel()}.`,
     `Kanały publikacji: ${channels}.`,
     `Język: ${languages}.`,
-    `Ton komunikacji: ${tone}.`,
+    `Ton komunikacji: ${tones.length ? tones.join(" + ") : "[DO UZUPEŁNIENIA]"}.`,
     "Humanizacja: wymagana tam, gdzie pasuje do faktów i tonu.",
     `Czy zwrócić JSON do Make: ${needJson}.`,
     "",
@@ -70,15 +130,44 @@ function buildPrompt() {
     "",
     "Brief:",
     `- Cel materiału: ${title}.`,
-    `- Link źródłowy: ${source}.`,
     `- Najważniejsze fakty: ${facts}.`,
     `- Osoby / zawodniczki / drużyny: ${people}.`,
     `- Deadline: ${deadline}.`,
     `- Dodatkowe wymagania: ${notes}.`,
+    `- Dodatkowe źródła / notatki do źródeł: ${sourceNotes}.`
+  ];
+
+  if (sourceLinks.length) {
+    prompt.push("", "Linki źródłowe:");
+    sourceLinks.forEach((link, index) => {
+      prompt.push(`- Link ${index + 1}: ${link}`);
+    });
+  }
+
+  if ($("graphic_prompt").checked || $("graphic_json").checked || graphicFormats.length || $("graphic_text").value.trim() || $("graphic_refs").value.trim()) {
+    prompt.push(
+      "",
+      "ZADANIE GRAFICZNE:",
+      `- Potrzebuję promptu do grafiki: ${graphicPrompt}.`,
+      `- Potrzebuję JSON/specyfikacji grafiki: ${graphicJson}.`,
+      `- Format(y): ${graphicFormats.length ? graphicFormats.join(" | ") : "[DO UZUPEŁNIENIA]"}.`,
+      `- Tekst na grafice: ${graphicText}.`,
+      `- Styl grafiki: ${graphicStyle}.`,
+      `- Zdjęcia / materiały referencyjne: ${graphicRefs}.`,
+      "- Przygotuj osobny prompt do grafiki na stronę klubową i osobny prompt do social media.",
+      "- Zachowaj spójność stylistyczną między formatami, ale dopasuj kompozycję do rozmiaru.",
+      "- Jeśli podano zdjęcia referencyjne, trzymaj twarze, stroje, logotypy i detale zgodnie z referencjami.",
+      "- W grafice nie wymyślaj detali, których nie ma w źródłach.",
+      "- Jeśli JSON/specyfikacja jest potrzebna, opisz format, rozmiar, cel grafiki, tekst na grafice, styl, elementy obowiązkowe, elementy zakazane, źródła/referencje oraz warianty: www, social, story."
+    );
+  }
+
+  prompt.push(
     "",
     "Jeśli zwracasz treść, przygotuj ją gotową do użycia w Custom GPT.",
     "Jeśli zwracasz JSON, przygotuj go w sposób uporządkowany i zgodny z briefem."
-  ];
+  );
+
   return prompt.join("\n");
 }
 
@@ -87,6 +176,10 @@ function buildArchivePayload() {
   const ptbr = $("lang_ptbr").checked;
   const briefText = $("facts").value || "[DO UZUPEŁNIENIA]";
   const briefTitle = $("title").value || "[DO UZUPEŁNIENIA]";
+  const sourceLinks = getSourceLinks();
+  const tones = getTones();
+  const graphicFormats = getGraphicFormats();
+  const graphicEnabled = $("graphic_prompt").checked || $("graphic_json").checked || graphicFormats.length > 0 || $("graphic_text").value.trim() || $("graphic_refs").value.trim();
   return {
     project: "MTS Żory",
     workflow_type: $("workflow_type").value,
@@ -94,9 +187,9 @@ function buildArchivePayload() {
     requires_approval: true,
     source: {
       type: "manual",
-      url: $("source_url").value,
+      url: sourceLinks[0] || "",
       title: briefTitle,
-      source_notes: briefText
+      source_notes: [$("source_notes").value.trim() || briefText].filter(Boolean).join("\n")
     },
     content: {
       title: briefTitle,
@@ -107,15 +200,15 @@ function buildArchivePayload() {
       story_1: "",
       story_2: "",
       story_3: "",
-      graphic_text: "",
+      graphic_text: $("graphic_text").value.trim() || "",
       newsletter_teaser: "",
       email_subject: "",
       email_body: "",
       notes: $("notes").value || "[DO UZUPEŁNIENIA]"
     },
     language_versions: {
-      pl: { facebook_post: "", instagram_post: "", story_1: "", story_2: "", graphic_text: "" },
-      pt_br: { facebook_post: "", instagram_post: "", story_1: "", story_2: "", graphic_text: "" }
+      pl: { facebook_post: "", instagram_post: "", story_1: "", story_2: "", graphic_text: $("graphic_text").value.trim() || "" },
+      pt_br: { facebook_post: "", instagram_post: "", story_1: "", story_2: "", graphic_text: $("graphic_text").value.trim() || "" }
     },
     metadata: {
       hashtags: ["#MTSŻory", "#MiastoOgnia", "#wdrodzeposukces"],
@@ -129,7 +222,17 @@ function buildArchivePayload() {
       priority: "normal",
       languages: ptbr ? ["pl", "pt_br"] : ["pl"],
       translation_mode: ptbr ? "cultural_adaptation" : "none",
-      mobile_first: true
+      mobile_first: true,
+      tones,
+      source_links: sourceLinks,
+      graphic: graphicEnabled ? {
+        prompt_needed: $("graphic_prompt").checked,
+        json_needed: $("graphic_json").checked,
+        formats: graphicFormats,
+        text: $("graphic_text").value.trim() || "",
+        style: $("graphic_style").value,
+        references: $("graphic_refs").value.trim() || ""
+      } : {}
     },
     missing_data: []
   };
@@ -151,12 +254,17 @@ $("copy").onclick = async () => {
 $("clear").onclick = () => {
   [
     "title",
-    "source_url",
+    "source_url_1",
+    "source_url_2",
+    "source_url_3",
+    "source_notes",
     "facts",
     "people",
     "date",
     "notes",
-    "webhook_url"
+    "webhook_url",
+    "graphic_text",
+    "graphic_refs"
   ].forEach((id) => ($(id).value = ""));
   [
     "channel_www",
@@ -167,7 +275,23 @@ $("clear").onclick = () => {
     "channel_canva",
     "channel_inne",
     "lang_ptbr",
-    "need_json"
+    "need_json",
+    "graphic_prompt",
+    "graphic_json",
+    "graphic_www",
+    "graphic_social",
+    "graphic_square",
+    "graphic_story",
+    "tone_newsowy",
+    "tone_humanizacja",
+    "tone_spokojnie_emocjonalny",
+    "tone_premium",
+    "tone_szybki_komunikat",
+    "tone_reporterski",
+    "tone_marketingowy",
+    "tone_socialowy",
+    "tone_bez_patetyzmu",
+    "tone_klubowy"
   ].forEach((id) => ($(id).checked = false));
   $("lang_pl").checked = true;
   $("status").textContent = "Wyczyszczono formularz.";
